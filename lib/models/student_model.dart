@@ -15,18 +15,12 @@ class Student {
     required this.status,
   });
 
-  factory Student.fromJson(
-    Map<String, dynamic> json, {
-    bool strictId = true,
-    String? fallbackId,
-  }) {
-    final id = strictId
-        ? _readNonEmptyString(json, 'id')
-        : _readOptionalString(json, 'id', fallbackValue: fallbackId);
-    final name = _readNonEmptyString(json, 'name');
-    final avatar = _readNonEmptyString(json, 'avatar');
-    final major = _readNonEmptyString(json, 'major');
-    final status = _readNonEmptyString(json, 'status');
+  factory Student.fromJson(Map<String, dynamic> json) {
+    final id = _readRequiredString(json, 'id');
+    final name = _readRequiredString(json, 'name');
+    final avatar = _readRequiredString(json, 'avatar');
+    final major = _readRequiredString(json, 'major');
+    final status = _readRequiredString(json, 'status');
     final gpa = _readGpa(json['gpa']);
 
     return Student(
@@ -39,7 +33,18 @@ class Student {
     );
   }
 
-  static String _readNonEmptyString(
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'avatar': avatar,
+      'major': major,
+      'gpa': gpa,
+      'status': status,
+    };
+  }
+
+  static String _readRequiredString(
     Map<String, dynamic> json,
     String key,
   ) {
@@ -51,20 +56,14 @@ class Student {
     return value;
   }
 
-  static String _readOptionalString(
-    Map<String, dynamic> json,
-    String key, {
-    String? fallbackValue,
-  }) {
-    final raw = json[key] ?? fallbackValue;
-    return raw?.toString().trim() ?? '';
-  }
-
   static double _readGpa(dynamic rawValue) {
     final numValue =
         rawValue is num ? rawValue.toDouble() : double.tryParse('$rawValue');
     if (numValue == null) {
       throw const FormatException('Truong gpa khong hop le: phai la so.');
+    }
+    if (!numValue.isFinite) {
+      throw const FormatException('Truong gpa khong hop le: phai la so huu han.');
     }
     if (numValue < 0 || numValue > 4) {
       throw const FormatException('Truong gpa khong hop le: phai trong khoang 0 den 4.');
