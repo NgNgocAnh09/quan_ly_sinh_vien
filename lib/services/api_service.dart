@@ -86,4 +86,38 @@ class ApiService {
 
     return students;
   }
+
+Future<void> addStudent(Map<String, dynamic> studentData) async {
+    final response = await _client.post(
+      _studentsUri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(studentData),
+    );
+    if (response.statusCode != 201) { // MockAPI trả về 201 khi tạo thành công
+      throw Exception('Không thể thêm sinh viên: ${response.statusCode}');
+    }
+  }
+
+  // 2. Cập nhật sinh viên (PUT)
+  Future<void> updateStudent(String id, Map<String, dynamic> studentData) async {
+    final updateUri = Uri.parse('$_studentsUri/$id');
+    final response = await _client.put(
+      updateUri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(studentData),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Không thể cập nhật sinh viên: ${response.statusCode}');
+    }
+  }
+
+  // 3. Xoá sinh viên (DELETE)
+  Future<void> deleteStudent(String id) async {
+    final deleteUri = Uri.parse('$_studentsUri/$id');
+    final response = await _client.delete(deleteUri);
+    if (response.statusCode != 200) {
+      throw Exception('Không thể xoá sinh viên: ${response.statusCode}');
+    }
+  }
 }
+

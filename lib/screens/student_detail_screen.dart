@@ -149,7 +149,7 @@ class StudentDetailScreen extends StatelessWidget {
                     child: CircleAvatar(
                       radius: 48,
                       backgroundImage: NetworkImage(student.avatar),
-                      onBackgroundImageError: (_, __) {},
+                      onBackgroundImageError: (_, _) {},
                       child: student.avatar.isEmpty
                           ? const Icon(Icons.person, size: 48)
                           : null,

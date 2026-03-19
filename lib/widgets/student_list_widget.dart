@@ -1,125 +1,46 @@
 import 'package:flutter/material.dart';
-
-class StudentMock {
-  final String id;
-  final String name;
-  final String avatarUrl;
-  final String major;
-  final double gpa;
-  final String status;
-
-  const StudentMock({
-    required this.id,
-    required this.name,
-    required this.avatarUrl,
-    required this.major,
-    required this.gpa,
-    required this.status,
-  });
-}
-
-const List<StudentMock> _dummyStudents = [
-  StudentMock(
-    id: 'SV001',
-    name: 'Nguyen Minh Anh',
-    avatarUrl: 'https://i.pravatar.cc/150?img=12',
-    major: 'Cong nghe thong tin',
-    gpa: 3.68,
-    status: 'Đang học',
-  ),
-  StudentMock(
-    id: 'SV002',
-    name: 'Tran Gia Bao',
-    avatarUrl: 'https://i.pravatar.cc/150?img=24',
-    major: 'Kinh te quoc te',
-    gpa: 2.74,
-    status: 'Bảo lưu',
-  ),
-  StudentMock(
-    id: 'SV003',
-    name: 'Le Hoang Phuc',
-    avatarUrl: 'https://i.pravatar.cc/150?img=35',
-    major: 'Ky thuat phan mem',
-    gpa: 1.86,
-    status: 'Cảnh báo',
-  ),
-  StudentMock(
-    id: 'SV004',
-    name: 'Pham Quynh Nhu',
-    avatarUrl: 'https://i.pravatar.cc/150?img=41',
-    major: 'Marketing',
-    gpa: 3.25,
-    status: 'Đang học',
-  ),
-  StudentMock(
-    id: 'SV005',
-    name: 'Vo Thanh Dat',
-    avatarUrl: 'https://i.pravatar.cc/150?img=52',
-    major: 'Tai chinh ngan hang',
-    gpa: 2.12,
-    status: 'Đang học',
-  ),
-];
-
-class StudentListWidget extends StatelessWidget {
-  const StudentListWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(12),
-      itemCount: _dummyStudents.length,
-      itemBuilder: (context, index) {
-        final student = _dummyStudents[index];
-        return StudentCard(
-          student: student,
-          onTap: () => print('Tapped on: ${student.name}'),
-        );
-      },
-    );
-  }
-}
+import '../models/student_model.dart'; // Gọi model thật vào
 
 class StudentCard extends StatelessWidget {
-  final StudentMock student;
+  final Student student; // Thay đổi từ StudentMock sang Student
   final VoidCallback onTap;
+  final VoidCallback onEdit;      // THÊM MỚI
+  final VoidCallback onDelete;
 
-  const StudentCard({super.key, required this.student, required this.onTap});
+  const StudentCard({super.key, required this.student, required this.onTap,required this.onEdit,required this.onDelete});
 
   Color? _gpaColor(double gpa) {
-    if (gpa >= 3.2) {
-      return Colors.green.shade700;
-    }
-    if (gpa < 2.0) {
-      return Colors.red.shade700;
-    }
+    if (gpa >= 3.2) return Colors.green.shade700;
+    if (gpa < 2.0) return Colors.red.shade700;
     return null;
   }
 
   Color _statusBackgroundColor(String status) {
-    switch (status) {
-      case 'Đang học':
-        return Colors.green.shade100;
-      case 'Bảo lưu':
-        return Colors.amber.shade100;
-      case 'Cảnh báo':
-        return Colors.red.shade100;
-      default:
-        return Colors.grey.shade200;
+    final value = status.toLowerCase();
+    if (value.contains('đang học') || value.contains('active')) {
+      return Colors.green.shade100;
     }
+    if (value.contains('bảo lưu')) {
+      return Colors.amber.shade100;
+    }
+    if (value.contains('cảnh báo')) {
+      return Colors.red.shade100;
+    }
+    return Colors.grey.shade200;
   }
 
   Color _statusTextColor(String status) {
-    switch (status) {
-      case 'Đang học':
-        return Colors.green.shade800;
-      case 'Bảo lưu':
-        return Colors.amber.shade900;
-      case 'Cảnh báo':
-        return Colors.red.shade800;
-      default:
-        return Colors.grey.shade800;
+    final value = status.toLowerCase();
+    if (value.contains('đang học') || value.contains('active')) {
+      return Colors.green.shade800;
     }
+    if (value.contains('bảo lưu')) {
+      return Colors.amber.shade900;
+    }
+    if (value.contains('cảnh báo')) {
+      return Colors.red.shade800;
+    }
+    return Colors.grey.shade800;
   }
 
   @override
@@ -127,7 +48,7 @@ class StudentCard extends StatelessWidget {
     final gpaColor = _gpaColor(student.gpa);
 
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 6),
+      margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: InkWell(
@@ -139,7 +60,7 @@ class StudentCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 24,
-                foregroundImage: NetworkImage(student.avatarUrl),
+                foregroundImage: NetworkImage(student.avatar),
                 child: const Icon(Icons.person),
               ),
               const SizedBox(width: 12),
@@ -147,55 +68,36 @@ class StudentCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      student.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+                    Text(student.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
                     const SizedBox(height: 4),
-                    Text(
-                      student.major,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
+                    Text(student.major, style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
+              
+              // KHU VỰC ĐIỂM SỐ & TRẠNG THÁI
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    'GPA: ${student.gpa.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: gpaColor,
-                    ),
-                  ),
+                  Text('GPA: ${student.gpa.toStringAsFixed(2)}', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: gpaColor)),
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _statusBackgroundColor(student.status),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      student.status,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: _statusTextColor(student.status),
-                      ),
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(color: _statusBackgroundColor(student.status), borderRadius: BorderRadius.circular(999)),
+                    child: Text(student.status, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: _statusTextColor(student.status))),
                   ),
+                ],
+              ),
+
+              // THÊM MỚI: Menu 3 chấm (Sửa / Xóa)
+              PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'edit') onEdit();
+                  if (value == 'delete') onDelete();
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(value: 'edit', child: Row(children: [Icon(Icons.edit, color: Colors.blue), SizedBox(width: 8), Text('Sửa')])),
+                  const PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete, color: Colors.red), SizedBox(width: 8), Text('Xoá')])),
                 ],
               ),
             ],
